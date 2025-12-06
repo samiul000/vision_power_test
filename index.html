@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="bn">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <title>Eye Test Pro (Full Display)</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --accent: #0b76d1;
+        --bg: #f4f7f9;
+        --text-main: #2c3e50;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--text-main);
+        /* FULL DISPLAY SETTINGS */
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden; /* Prevent scrolling */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      /* The Main Container - Takes Full Screen */
+      .full-screen-container {
+        width: 100%;
+        height: 100%;
+        display: none; /* Hidden by default */
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 20px;
+        background: white;
+        animation: fadeIn 0.5s ease;
+      }
+
+      .active-step {
+        display: flex;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      h1 {
+        font-size: 36px;
+        margin-bottom: 20px;
+        color: #111;
+      }
+      p {
+        font-size: 20px;
+        color: #666;
+        max-width: 800px;
+        margin-bottom: 30px;
+        line-height: 1.6;
+      }
+
+      /* --- STEP 1: CALIBRATION STYLES --- */
+      #cc-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 350px;
+        background: #f8f9fa;
+        border: 1px solid #eee;
+        margin-bottom: 30px;
+      }
+
+      #cc-box {
+        /* Default Start: 480px width */
+        width: 480px;
+        /* Aspect Ratio 1.586 -> 480 / 1.586 = 302.6px */
+        height: 303px;
+        background: linear-gradient(135deg, #bdc3c7, #2c3e50);
+        border-radius: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        position: relative;
+      }
+
+      #card-text {
+        font-size: 24px;
+        font-weight: bold;
+        letter-spacing: 1px;
+      }
+      #card-sub {
+        font-size: 14px;
+        opacity: 0.8;
+        margin-top: 5px;
+      }
+
+      /* --- STEP 3: LETTER DISPLAY --- */
+      #letter-display-area {
+        background: #fff;
+        border: 6px solid #333; /* Thicker crowding bar */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        margin: 30px 0;
+        min-width: 300px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      #letter-text {
+        font-family: "Arial", sans-serif;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: 0.4em;
+        white-space: nowrap;
+        /* Font size set dynamically via JS */
+      }
+
+      /* --- CONTROLS --- */
+      input[type="range"] {
+        width: 60%;
+        max-width: 800px;
+        height: 20px; /* Larger hit area */
+        margin: 20px 0;
+        cursor: pointer;
+      }
+
+      .btn {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        padding: 18px 40px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 20px; /* Large Text */
+        font-weight: 600;
+        transition: transform 0.1s, box-shadow 0.2s;
+        min-width: 250px;
+        margin: 10px;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(11, 118, 209, 0.3);
+      }
+      .btn:active {
+        transform: translateY(0);
+      }
+      .btn.secondary {
+        background: #e4e6eb;
+        color: #333;
+      }
+
+      .score-container {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+      }
+      .score-btn {
+        padding: 20px 30px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 8px;
+        border: none;
+        color: white;
+        cursor: pointer;
+        min-width: 120px;
+      }
+      .sb-0 {
+        background: #e74c3c;
+      }
+      .sb-1 {
+        background: #f39c12;
+      }
+      .sb-2 {
+        background: #3498db;
+      }
+      .sb-3 {
+        background: #27ae60;
+      }
+      .score-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .dim-display {
+        font-size: 16px;
+        color: #555;
+        margin-top: 10px;
+        background: #eee;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 500;
+      }
+
+      /* Result Box */
+      .result-panel {
+        background: #f0f8ff;
+        padding: 40px;
+        border-radius: 20px;
+        border: 2px solid #d0e1f5;
+        max-width: 900px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ================= STEP 1: CALIBRATION ================= -->
+    <div id="step-calibration" class="full-screen-container active-step">
+      <h1>ধাপ ১: স্ক্রিন ক্যালিব্রেশন</h1>
+      <p>
+        নির্ভুল ফলাফলের জন্য, অনুগ্রহ করে স্লাইডার ব্যবহার করে নীল বক্সটির আকার
+        পরিবর্তন করুন যতক্ষণ না এটি একটি বাস্তব
+        <strong>ক্রেডিট কার্ড বা আইডি কার্ডের</strong> সমান হয়।
+      </p>
+
+      <div id="cc-wrapper">
+        <div id="cc-box">
+          <div id="card-text">Standard ID-1 Card</div>
+          <div id="card-sub">Place real card here to match size</div>
+        </div>
+      </div>
+
+      <div class="dim-display" id="calib-dims">480px &times; 303px</div>
+
+      <!-- Default set to 480 to match request -->
+      <input
+        type="range"
+        id="calibSlider"
+        min="300"
+        max="800"
+        value="480"
+        oninput="updateCalibBox()"
+      />
+
+      <button class="btn" onclick="finishCalibration()">
+        ঠিক আছে, মিলেছে (Confirm)
+      </button>
+    </div>
+
+    <!-- ================= STEP 2: MODE SELECTION ================= -->
+    <div id="step-mode" class="full-screen-container">
+      <h1>ধাপ ২: দূরত্ব নির্বাচন</h1>
+      <p>আপনি স্ক্রিন থেকে কত দূরে আছেন?</p>
+
+      <div style="display: flex; gap: 30px">
+        <div style="text-align: center">
+          <button class="btn" onclick="startTest('near')">কাছের (Near)</button>
+          <div style="font-size: 16px; color: #777; margin-top: 10px">
+            ৪০ সেমি দূরত্ব (হাতে ধরা)
+          </div>
+        </div>
+
+        <div style="text-align: center">
+          <button class="btn secondary" onclick="startTest('far')">
+            দূরের (Far)
+          </button>
+          <div style="font-size: 16px; color: #777; margin-top: 10px">
+            ২ মিটার দূরত্ব (৬.৫ ফুট)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= STEP 3: THE TEST ================= -->
+    <div id="step-test" class="full-screen-container">
+      <div
+        style="
+          position: absolute;
+          top: 30px;
+          left: 30px;
+          font-size: 18px;
+          color: #888;
+          font-weight: bold;
+        "
+        id="mode-display"
+      >
+        NEAR TEST
+      </div>
+      <div
+        style="
+          position: absolute;
+          top: 30px;
+          right: 30px;
+          font-size: 18px;
+          color: #888;
+        "
+      >
+        Attempt:
+        <span id="att-count" style="color: #000; font-weight: bold">1</span>/12
+      </div>
+
+      <div id="letter-display-area">
+        <div id="letter-text">H K D</div>
+      </div>
+
+      <p style="margin-bottom: 10px">
+        স্লাইডার ব্যবহার করে অক্ষরগুলি স্পষ্ট করুন:
+      </p>
+      <input
+        type="range"
+        id="testSlider"
+        min="50"
+        max="250"
+        value="100"
+        oninput="updateTestVisuals()"
+      />
+
+      <div class="dim-display" id="size-debug">Text Height: -- mm</div>
+
+      <div style="margin-top: 40px">
+        <p style="margin-bottom: 15px; font-weight: bold">
+          কয়টি অক্ষর সঠিকভাবে পড়তে পেরেছেন?
+        </p>
+        <div class="score-container" id="score-buttons">
+          <button class="score-btn sb-0" onclick="submitScore(0)">
+            ০টি (Fail)
+          </button>
+          <button class="score-btn sb-1" onclick="submitScore(1)">১টি</button>
+          <button class="score-btn sb-2" onclick="submitScore(2)">২টি</button>
+          <button class="score-btn sb-3" onclick="submitScore(3)">
+            ৩টি (Pass)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= STEP 4: RESULTS ================= -->
+    <div id="step-result" class="full-screen-container">
+      <h1>ফলাফল (Results)</h1>
+      <div id="result-content" class="result-panel"></div>
+      <button
+        class="btn secondary"
+        onclick="location.reload()"
+        style="margin-top: 30px"
+      >
+        পুনরায় শুরু করুন
+      </button>
+    </div>
+
+    <script>
+      // --- GLOBAL VARIABLES ---
+      let pxPerMm = 0;
+      let mode = "near";
+      let attempts = 0;
+      const MAX_ATTEMPTS = 12;
+
+      // Optometry Constants
+      const BASE_MM_NEAR = 0.581; // 20/20 size at 40cm
+      const BASE_MM_FAR = 2.908; // 20/20 size at 2m
+
+      let targetBaseMm = 0;
+      let currentMmSize = 0;
+      let historyData = [];
+
+      const optotypes = ["C", "D", "H", "K", "N", "O", "R", "S", "V", "Z"];
+
+      // --- 1. CALIBRATION LOGIC ---
+      function updateCalibBox() {
+        const val = parseInt(document.getElementById("calibSlider").value);
+        const box = document.getElementById("cc-box");
+        const dimLabel = document.getElementById("calib-dims");
+
+        // Standard ID-1 Card Ratio: 85.6mm / 53.98mm = 1.5857
+        const aspectRatio = 1.5857;
+
+        // Calculate Height based on aspect ratio
+        const height = Math.round(val / aspectRatio);
+
+        box.style.width = val + "px";
+        box.style.height = height + "px";
+
+        dimLabel.innerHTML = `On Screen Size: <strong>${val}px &times; ${height}px</strong>`;
+      }
+
+      function finishCalibration() {
+        const pixelWidth = document.getElementById("calibSlider").value;
+        const creditCardMm = 85.6;
+
+        // Calculate Pixels Per Millimeter based on the slider
+        pxPerMm = pixelWidth / creditCardMm;
+
+        switchStep("step-mode");
+      }
+
+      // --- 2. SETUP TEST ---
+      function switchStep(id) {
+        document
+          .querySelectorAll(".full-screen-container")
+          .forEach((c) => c.classList.remove("active-step"));
+        document.getElementById(id).classList.add("active-step");
+      }
+
+      function startTest(selectedMode) {
+        mode = selectedMode;
+        document.getElementById("mode-display").textContent =
+          mode === "near" ? "NEAR TEST (40cm)" : "FAR TEST (2m)";
+
+        targetBaseMm = mode === "near" ? BASE_MM_NEAR : BASE_MM_FAR;
+        // Start easier (approx 20/100 size)
+        currentMmSize = targetBaseMm * 5;
+
+        attempts = 0;
+        historyData = [];
+
+        switchStep("step-test");
+        nextRound();
+      }
+
+      // --- 3. TEST LOOP ---
+      function nextRound() {
+        attempts++;
+        if (attempts > MAX_ATTEMPTS) {
+          calculateResults();
+          return;
+        }
+
+        document.getElementById("att-count").textContent = attempts;
+
+        let txt = "";
+        for (let i = 0; i < 3; i++)
+          txt += optotypes[Math.floor(Math.random() * optotypes.length)] + " ";
+        document.getElementById("letter-text").textContent = txt;
+
+        document.getElementById("testSlider").value = 100;
+        updateTestVisuals();
+
+        const btns = document.querySelectorAll(".score-btn");
+        btns.forEach((b) => (b.disabled = false));
+      }
+
+      function updateTestVisuals() {
+        const sliderVal = document.getElementById("testSlider").value;
+        const multiplier = sliderVal / 100;
+
+        const displayMm = currentMmSize * multiplier;
+        const displayPx = displayMm * pxPerMm;
+
+        // Apply size
+        document.getElementById("letter-text").style.fontSize =
+          Math.round(displayPx) + "px";
+        document.getElementById("size-debug").textContent =
+          "Text Height: " + displayMm.toFixed(2) + "mm";
+      }
+
+      function submitScore(score) {
+        const btns = document.querySelectorAll(".score-btn");
+        btns.forEach((b) => (b.disabled = true));
+
+        const sliderVal = document.getElementById("testSlider").value;
+        const finalMmUsed = currentMmSize * (sliderVal / 100);
+
+        historyData.push({
+          attempt: attempts,
+          mmSize: finalMmUsed,
+          score: score,
+        });
+
+        // Staircase logic
+        if (score === 3) currentMmSize = finalMmUsed * 0.7;
+        else if (score === 2) currentMmSize = finalMmUsed * 0.85;
+        else if (score === 1) currentMmSize = finalMmUsed * 1.2;
+        else currentMmSize = finalMmUsed * 1.5;
+
+        // Cap limits (20/10 to 20/400)
+        if (currentMmSize < targetBaseMm * 0.5)
+          currentMmSize = targetBaseMm * 0.5;
+        if (currentMmSize > targetBaseMm * 20)
+          currentMmSize = targetBaseMm * 20;
+
+        setTimeout(nextRound, 250);
+      }
+
+      // --- 4. CALCULATION ENGINE ---
+      function calculateResults() {
+        switchStep("step-result");
+
+        // Average Last 8 passed attempts (Attempts 5-12)
+        const relevantAttempts = historyData.slice(
+          Math.max(historyData.length - 8, 0)
+        );
+        const passed = relevantAttempts
+          .filter((d) => d.score >= 2)
+          .map((d) => d.mmSize);
+
+        let finalMm = 0;
+        if (passed.length === 0) {
+          finalMm = Math.min(...historyData.map((d) => d.mmSize));
+        } else {
+          finalMm = passed.reduce((a, b) => a + b, 0) / passed.length;
+        }
+
+        const MAR = finalMm / targetBaseMm;
+        const snellenDenom = Math.round(20 * MAR);
+
+        let diopters = 0;
+        let diagnosis = "";
+
+        if (MAR <= 1.2) {
+          diopters = 0.0;
+          diagnosis = "Normal Vision (স্বাভাবিক)";
+        } else {
+          const dVal = (Math.log10(MAR) / 0.15) * 0.5;
+          diopters = (Math.round(dVal * 4) / 4).toFixed(2);
+
+          if (mode === "far") {
+            diagnosis = "Myopia (মায়োপিয়া)";
+            diopters = "-" + diopters + " D";
+          } else {
+            diagnosis = "Presbyopia/Hyperopia (চালশে)";
+            diopters = "+" + diopters + " D";
+          }
+        }
+
+        const content = document.getElementById("result-content");
+        content.innerHTML = `
+            <div style="font-size:20px; color:#555; margin-bottom:10px">Estimated Acuity</div>
+            <div style="font-size:48px; font-weight:bold; color:#333">20 / ${snellenDenom}</div>
+            <div style="font-size:18px; color:#999; margin-bottom:30px">(Metric: 6 / ${Math.round(
+              6 * MAR
+            )})</div>
+            
+            <div style="background:#e8f0fe; padding:30px; border-radius:15px; border:2px solid #d2e3fc">
+                <div style="font-size:20px; font-weight:bold; color:#1967d2">${diagnosis}</div>
+                <div style="font-size:60px; font-weight:bold; color:#0b76d1; margin:15px 0">${diopters}</div>
+                <div style="font-size:14px; color:#555">
+                  Smallest Readable Size: <strong>${finalMm.toFixed(
+                    2
+                  )}mm</strong>
+                </div>
+            </div>
+            
+            <p style="margin-top:30px; font-size:14px; color:#d63031">
+                <strong>Disclaimer:</strong> This is a calibrated digital screening tool. Always consult an eye doctor for a medical prescription.
+            </p>
+        `;
+      }
+
+      // Initialize visuals
+      updateCalibBox();
+    </script>
+  </body>
+</html>
